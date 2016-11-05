@@ -2,6 +2,7 @@ package org.devathon.contest2016;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import org.devathon.contest2016.commands.MachineCommand;
+import org.devathon.contest2016.listeners.CreationHandler;
 import org.devathon.contest2016.machine.Machine;
 
 import java.io.File;
@@ -12,6 +13,7 @@ public class DevathonPlugin extends JavaPlugin {
 
     private static DevathonPlugin INSTANCE;
     private final List<Machine> machines = new ArrayList<>();
+    private final CreationHandler creationHandler = new CreationHandler();
     private final File machinesDir = new File(DevathonPlugin.get().getDataFolder(), "machines");
 
     @Override
@@ -24,6 +26,10 @@ public class DevathonPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         INSTANCE = null;
+    }
+
+    public CreationHandler getCreationHandler() {
+        return creationHandler;
     }
 
     public File getMachinesDir() {

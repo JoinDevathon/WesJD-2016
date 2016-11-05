@@ -13,8 +13,16 @@ public class MachineBuilder {
         this.type = type;
     }
 
+    public String getType() {
+        return type;
+    }
+
     public boolean hasName() {
         return name != null;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public MachineBuilder name(String name) {
@@ -28,6 +36,8 @@ public class MachineBuilder {
     }
 
     public Machine build() {
+        //TODO - Add a hologram to show the machine name??
+        blocks.forEach(MachineBlock::create);
         return new Machine(type, name, blocks);
     }
 
