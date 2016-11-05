@@ -62,12 +62,9 @@ public class CreationHandler implements Listener {
                 e.setCancelled(true);
                 builder.name(e.getMessage());
 
-                final File[] classes = new File(DevathonPlugin.get().getMachinesDir(), builder.getType()).listFiles();
-                Validate.notNull(classes, "Unable to read blocks classes.");
-
                 final StringBuilder sb = new StringBuilder();
-                Arrays.stream(classes).forEach(clazz -> {
-                    sb.append(clazz.getName());
+                builder.getHandlers().forEach(handler -> {
+                    sb.append(handler.getClass().getSimpleName());
                     sb.append(", ");
                 });
                 sb.deleteCharAt(sb.length()-2);

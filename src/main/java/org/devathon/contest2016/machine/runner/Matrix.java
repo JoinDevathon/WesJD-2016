@@ -1,18 +1,11 @@
 package org.devathon.contest2016.machine.runner;
 
-import org.apache.commons.lang.Validate;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.devathon.contest2016.DevathonPlugin;
 import org.devathon.contest2016.machine.Machine;
 import org.devathon.contest2016.machine.MachineBlock;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Set;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -20,32 +13,16 @@ public class Matrix {
 
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
 
-    private final LinkedHashMap<MachineBlock, AbstractMachineHandler> blocks = new LinkedHashMap<>();
-    private final MachineBlock[] indexes;
+    private final List<MachineBlock> blocks;
     private int currentIndex;
 
     public Matrix(Machine machine) {
-        final File machineHandlers = new File(DevathonPlugin.get().getMachinesDir(), machine.getName());
-        Validate.isTrue(machineHandlers.exists(), "Machine doesn't exist on file, how did you get here?");
-
-        try {
-            final ClassLoader classLoader = new URLClassLoader(new URL[] { machineHandlers.toURI().toURL() });
-            for(MachineBlock block : machine.getBlocks()) {
-                final Class<?> clazz = classLoader.loadClass(block.getType());
-                Validate.isTrue(clazz.isAssignableFrom(AbstractMachineHandler.class), "All classes in the machines dir must be machine handlers.");
-                blocks.put(block, (AbstractMachineHandler) clazz.newInstance());
-            }
-        } catch (MalformedURLException | ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-            throw new RuntimeException(ex);
-        }
-
-        final Set<MachineBlock> keySet = blocks.keySet();
-        indexes = keySet.toArray(new MachineBlock[keySet.size()]);
+        this.blocks = machine.getBlocks();
 
         final MatrixRunner runner = new MatrixRunner();
-        EXECUTOR_SERVICE.execute(() -> Arrays.stream(indexes).forEach(block -> {
+        EXECUTOR_SERVICE.execute(() -> blocks.forEach(block -> {
             try {
-                final AbstractMachineHandler handler = blocks.get(block);
+                final AbstractMachineHandler handler = block.getHandler();
                 runner.setCurrent(handler);
                 runner.runTask(DevathonPlugin.get());
                 Thread.sleep(handler.getWait());
@@ -61,11 +38,11 @@ public class Matrix {
     }
 
     public MachineBlock getPrevious() {
-        return indexes[currentIndex-1];
+        return blocks.get(currentIndex-1);
     }
 
     public MachineBlock getCurrent() {
-        return indexes[currentIndex];
+        return blocks.get(currentIndex);
     }
 
     public boolean hasNext() {
@@ -73,7 +50,7 @@ public class Matrix {
     }
 
     public MachineBlock getNext() {
-        return indexes[currentIndex+1];
+        return blocks.get(currentIndex+1);
     }
 
     private class MatrixRunner extends BukkitRunnable {
