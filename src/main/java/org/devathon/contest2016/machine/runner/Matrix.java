@@ -1,5 +1,8 @@
 package org.devathon.contest2016.machine.runner;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.devathon.contest2016.DevathonPlugin;
 import org.devathon.contest2016.machine.Machine;
@@ -13,24 +16,35 @@ public class Matrix {
 
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
 
+    private final Machine machine;
+    private final Player player;
     private final List<MachineBlock> blocks;
     private int currentIndex;
 
-    public Matrix(Machine machine) {
+    public Matrix(Machine machine, Player player) {
+        this.machine = machine;
+        this.player = player;
         this.blocks = machine.getBlocks();
+    }
 
+    public void start() {
         final MatrixRunner runner = new MatrixRunner();
-        EXECUTOR_SERVICE.execute(() -> blocks.forEach(block -> {
-            try {
-                final AbstractMachineHandler handler = block.getHandler();
-                runner.setCurrent(handler);
-                runner.runTask(DevathonPlugin.get());
-                Thread.sleep(handler.getWait());
-                currentIndex++;
-            } catch (InterruptedException ex) {
-                throw new RuntimeException(ex);
-            }
-        }));
+        EXECUTOR_SERVICE.execute(() ->
+        {
+            Bukkit.getScheduler().runTask(DevathonPlugin.get(), () -> player.sendMessage(ChatColor.GREEN + machine.getName() + " is starting."));
+            blocks.forEach(block -> {
+                try {
+                    final AbstractMachineHandler handler = block.getHandler();
+                    runner.setCurrent(handler);
+                    runner.runTask(DevathonPlugin.get());
+                    Thread.sleep(handler.getWait());
+                    currentIndex++;
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
+            Bukkit.getScheduler().runTask(DevathonPlugin.get(), () -> player.sendMessage(ChatColor.GREEN + machine.getName() + " has finished running."));
+        });
     }
 
     public boolean hasPrevious() {

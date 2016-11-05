@@ -89,7 +89,9 @@ public class MachineBuilder {
     public Machine build() {
         //TODO - Add a hologram to show the machine name??
         blocks.forEach(MachineBlock::create);
-        return new Machine(type, name, blocks);
+        final Machine machine = new Machine(type, name, blocks);
+        DevathonPlugin.get().addMachine(machine);
+        return machine;
     }
 
 }

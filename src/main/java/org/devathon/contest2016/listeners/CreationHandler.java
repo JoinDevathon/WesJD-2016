@@ -43,6 +43,10 @@ public class CreationHandler implements Listener {
         creating.put(player.getUniqueId(), null);
     }
 
+    public MachineBuilder getBuilder(Player player) {
+        return creating.get(player.getUniqueId());
+    }
+
     public boolean isCreating(Player player) {
         return creating.containsKey(player.getUniqueId());
     }
@@ -76,6 +80,8 @@ public class CreationHandler implements Listener {
                         ChatColor.GREEN + "You have chosen the " + ChatColor.YELLOW + builder.getType() + ChatColor.GREEN + "type, so here are your choices for machine block types:",
                         ChatColor.YELLOW + sb.toString().trim()
                 );
+            } else {
+                //TODO - cancel creation or type done... must have at least two blocks to be done
             }
         }
     }

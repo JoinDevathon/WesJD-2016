@@ -28,6 +28,14 @@ public class DevathonPlugin extends JavaPlugin {
         INSTANCE = null;
     }
 
+    public void addMachine(Machine machine) {
+        machines.add(machine);
+    }
+
+    public List<Machine> getMachines() {
+        return machines;
+    }
+
     public CreationHandler getCreationHandler() {
         return creationHandler;
     }

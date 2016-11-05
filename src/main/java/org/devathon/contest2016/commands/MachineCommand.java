@@ -4,6 +4,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.devathon.contest2016.DevathonPlugin;
+import org.devathon.contest2016.listeners.CreationHandler;
+import org.devathon.contest2016.machine.Machine;
+import org.devathon.contest2016.machine.runner.Matrix;
 import org.devathon.contest2016.util.MessageUtils;
 
 public class MachineCommand extends AbstractCommand implements Listener {
@@ -21,15 +24,33 @@ public class MachineCommand extends AbstractCommand implements Listener {
         } else if(args[0].equalsIgnoreCase("create")) {
             DevathonPlugin.get().getCreationHandler().startFor(player);
         } else if(args[0].equalsIgnoreCase("block")) {
-            if(DevathonPlugin.get().getCreationHandler().isCreating(player)) {
+            final CreationHandler handler = DevathonPlugin.get().getCreationHandler();
+            if(handler.isCreating(player)) {
+                if(args.length > 1) {
 
+                }
+                final StringBuilder sb = new StringBuilder();
+                
             } else player.sendMessage(ChatColor.RED + "You can't get machine blocks when you aren't creating!");
         } else if(args[0].equalsIgnoreCase("run")) {
             if(args.length > 1) {
-
+                final Machine machine = DevathonPlugin.get().getMachines().stream().filter(mach -> mach.getName().equalsIgnoreCase(args[1])).findFirst().orElse(null);
+                if(machine != null) {
+                    new Matrix(machine, player).start();
+                    return;
+                }
             }
-            player.sendMessage(ChatColor.RED + "You must supply a valid machine name to run! You can choose from");
-            //TODO - Add valid machine names to run??
+
+            final StringBuilder sb = new StringBuilder();
+            DevathonPlugin.get().getMachines().forEach(machine -> {
+                sb.append(machine.getName());
+                sb.append(", ");
+            });
+            sb.deleteCharAt(sb.length()-2);
+            MessageUtils.sendMessage(player,
+                    ChatColor.RED + "You must supply a valid machine name to run! You can choose from:",
+                    ChatColor.YELLOW + sb.toString().trim()
+            );
         } else if(args[0].equalsIgnoreCase("destroy")) {
 
         }
