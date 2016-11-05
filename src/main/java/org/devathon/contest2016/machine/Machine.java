@@ -9,7 +9,7 @@ public class Machine {
     private final String name;
     private final List<MachineBlock> blocks;
 
-    public Machine(String type, String name, List<MachineBlock> blocks) {
+    Machine(String type, String name, List<MachineBlock> blocks) {
         this.type = type;
         this.name = name;
         this.blocks = blocks;

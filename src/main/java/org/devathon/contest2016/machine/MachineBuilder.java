@@ -13,6 +13,10 @@ public class MachineBuilder {
         this.type = type;
     }
 
+    public boolean hasName() {
+        return name != null;
+    }
+
     public MachineBuilder name(String name) {
         this.name = name;
         return this;

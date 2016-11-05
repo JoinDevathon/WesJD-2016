@@ -1,6 +1,7 @@
 package org.devathon.contest2016;
 
 import org.bukkit.plugin.java.JavaPlugin;
+import org.devathon.contest2016.commands.MachineCommand;
 import org.devathon.contest2016.machine.Machine;
 
 import java.io.File;
@@ -17,6 +18,7 @@ public class DevathonPlugin extends JavaPlugin {
     public void onEnable() {
         INSTANCE = this;
         machinesDir.mkdirs();
+        getCommand("machine").setExecutor(new MachineCommand());
     }
 
     @Override

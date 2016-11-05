@@ -1,6 +1,7 @@
 package org.devathon.contest2016.machine.runner;
 
 import org.apache.commons.lang.Validate;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.devathon.contest2016.DevathonPlugin;
 import org.devathon.contest2016.machine.Machine;
 import org.devathon.contest2016.machine.MachineBlock;
@@ -9,6 +10,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -29,7 +31,7 @@ public class Matrix {
         try {
             final ClassLoader classLoader = new URLClassLoader(new URL[] { machineHandlers.toURI().toURL() });
             for(MachineBlock block : machine.getBlocks()) {
-                final Class<?> clazz = classLoader.loadClass(block.getName());
+                final Class<?> clazz = classLoader.loadClass(block.getType());
                 Validate.isTrue(clazz.isAssignableFrom(AbstractMachineHandler.class), "All classes in the machines dir must be machine handlers.");
                 blocks.put(block, (AbstractMachineHandler) clazz.newInstance());
             }
@@ -40,9 +42,18 @@ public class Matrix {
         final Set<MachineBlock> keySet = blocks.keySet();
         indexes = keySet.toArray(new MachineBlock[keySet.size()]);
 
-        EXECUTOR_SERVICE.execute(() -> {
-            
-        });
+        final MatrixRunner runner = new MatrixRunner();
+        EXECUTOR_SERVICE.execute(() -> Arrays.stream(indexes).forEach(block -> {
+            try {
+                final AbstractMachineHandler handler = blocks.get(block);
+                runner.setCurrent(handler);
+                runner.runTask(DevathonPlugin.get());
+                Thread.sleep(handler.getWait());
+                currentIndex++;
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
+        }));
     }
 
     public boolean hasPrevious() {
@@ -63,6 +74,21 @@ public class Matrix {
 
     public MachineBlock getNext() {
         return indexes[currentIndex+1];
+    }
+
+    private class MatrixRunner extends BukkitRunnable {
+
+        private AbstractMachineHandler current;
+
+        @Override
+        public void run() {
+            current.onUse(Matrix.this);
+        }
+
+        public void setCurrent(AbstractMachineHandler current) {
+            this.current = current;
+        }
+
     }
 
 }
