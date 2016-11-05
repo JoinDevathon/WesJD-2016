@@ -4,14 +4,21 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class DevathonPlugin extends JavaPlugin {
 
+    private static DevathonPlugin INSTANCE;
+
     @Override
     public void onEnable() {
-        // put your enable code here
+        INSTANCE = this;
     }
 
     @Override
     public void onDisable() {
-        // put your disable code here
+        INSTANCE = null;
     }
+
+    public static DevathonPlugin get() {
+        return INSTANCE;
+    }
+
 }
 
